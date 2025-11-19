@@ -67,7 +67,7 @@ int main(){
     median = (numbers[counter/2]);
 
     printf("\nThe median is %d", median);
-
+    free(numbers);
     return 0;
 
 }
