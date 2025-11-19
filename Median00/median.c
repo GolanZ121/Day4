@@ -51,9 +51,9 @@ int main(){
 
         counter++;
         if(counter == 1){
-            numbers = (int *) malloc(sizeof(int));
+            numbers = (int *) calloc(counter, sizeof(int));
             if(numbers == NULL){
-                printf("Error malloc allocation memory");
+                printf("Error calloc allocation memory");
                 return 1;
             }
         }
