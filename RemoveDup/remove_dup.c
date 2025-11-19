@@ -27,7 +27,7 @@
 * Author - Golan Ziv
 -------------------------------------------------------*/
 void remove_dup3(int *src, int src_len, int *dest_len, int **dest){
-    int * result = malloc(sizeof(int)), *temp;
+    int * result = calloc(1, sizeof(int)), *temp;
     int counter = 1;
 
     if(result == NULL || src == NULL || src_len == 0){ // if malloc failed or the array is empty
