@@ -22,11 +22,11 @@
 void calc_paint(int x, int y){
     if(x == y) printf("%dx%d ", x, y);
     if (x > y){
-        calc_paint(x - y, y);
         printf("%dx%d ", y, y);
+        calc_paint(x - y, y);
     }else if (y > x){
-        calc_paint(x, y - x);
         printf("%dx%d ", x, x);
+        calc_paint(x, y - x);
     }
 }
 
