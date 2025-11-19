@@ -32,6 +32,8 @@ int main(int argc, char* argv[]){
         }
         else if(strcmp(argv[1], "analyze") == 0)
             analyze_file(argv[2]);
+        else
+            printf("Unknown command <%s>", argv[1]);
     }
     else if(argc == 4){ // If 3 parameters were given we will check the first string
         if(strcmp(argv[1], "copy") == 0)

@@ -20,11 +20,17 @@
 * Author - Golan Ziv
 -------------------------------------------------------*/
 void print_file(char *filename){
-    FILE *fp = fopen(filename, "r");
+    FILE *fp;
     int c; 
 
+    if(filename == NULL){
+        printf("invalid filename\n");
+        return;
+    }
+
+    fp = fopen(filename, "r");
     if(fp == NULL){
-        printf("error with file %s", filename);
+        printf("error with file %s\n", filename);
         return;
     }
 
@@ -54,16 +60,15 @@ void copy_file(char *src_filename, char *dest_filename){
     if(src_filename == NULL || dest_filename == NULL) return;
 
     src_fp = fopen(src_filename, "r");
-    dest_fp = fopen(dest_filename, "w");
-
+    
     if(src_fp == NULL){
-        printf("error with file %s", src_filename);
-        if(dest_fp != NULL) fclose(dest_fp);
+        printf("error with file %s\n", src_filename);
         return;
     }
-
+    
+    dest_fp = fopen(dest_filename, "w");
     if(dest_fp == NULL){
-        printf("error with file %s", dest_filename);
+        printf("error with file %s\n", dest_filename);
         fclose(src_fp);
         return;
     }
@@ -93,13 +98,15 @@ void copy_file(char *src_filename, char *dest_filename){
 * Author - Golan Ziv
 -------------------------------------------------------*/
 void analyze_file(char *filename){
-    FILE *fp = fopen(filename, "r");
+    FILE *fp;
     int in_word = 0;
     int newline_counter = 0, char_counter = 0, word_counter = 0;
     int c, read_non_whitespace = 0; 
 
+
+    fp = fopen(filename, "r");
     if(fp == NULL){
-        printf("error with file %s", filename);
+        printf("error with file %s\n", filename);
         return;
     }
 
@@ -140,33 +147,36 @@ void analyze_file(char *filename){
 *
 * Author - Golan Ziv
 -------------------------------------------------------*/
-void delete_line_from_file(char* filenmae, char* line_number_s){
+void delete_line_from_file(char* filename, char* line_number_s){
     int line_n;
     int line_counter = 1;
     int c;
     char tmp[] = "temp.txt";
-    FILE* fp = fopen(filenmae, "r");
-    FILE* tempfp = fopen(tmp, "w");
+    FILE* fp, *tempfp;
 
+    if(filename == NULL || line_number_s == NULL){
+        printf("invalid input\n");
+        return;
+    }
+
+    if(sscanf(line_number_s, "%d", &line_n) != 1 || line_n <= 0){
+        printf("invalid line number\n");
+        return;
+    }
+
+    fp = fopen(filename, "r");
     if(fp == NULL){
-        printf("error with file %s", filenmae);
-        if(tempfp) fclose(tempfp);
+        printf("error with file %s\n", filename);
         return;
     }
 
+    tempfp = fopen(tmp, "w");
     if(tempfp == NULL){
-        printf("error while deleting line");
+        printf("error while deleting line\n");
         fclose(fp);
         return;
     }
 
-    if(sscanf(line_number_s, " %d", &line_n) != 1){
-        fclose(fp);
-        fclose(tempfp);
-        return;
-    }
-
-    if (line_n <= 0) return;
 
     // copy all contents of the file to the temp file 
     // except the specific line 
@@ -180,30 +190,30 @@ void delete_line_from_file(char* filenmae, char* line_number_s){
         } 
         if (c == (int) '\n') line_counter++;        
     } 
-
+    
+    if (c != (int) '\n') line_counter++;        
+    
     // close and open in different mode
     fclose(fp);
     fclose(tempfp);
-    fp = fopen(filenmae, "w");
+    fp = fopen(filename, "w");
     tempfp = fopen(tmp, "r");
 
-    if(fp == NULL){
-        printf("error with file %s", filenmae);
+    if(fp == NULL || tempfp == NULL){
+        printf("error reopening files\n");
         if(tempfp) fclose(tempfp);
+        if(fp) fclose(fp);
+        remove(tmp);
         return;
     }
 
-    if(tempfp == NULL){
-        printf("error while deleting line");
-        fclose(fp);
-        return;
-    }   
 
     // copy back the contents of the temp file to the original file
     while((c = fgetc(tempfp)) != EOF){
-        if(fputc(c, tempfp) != c){ 
+        if(fputc(c, fp) != c){ 
             fclose(tempfp);
             fclose(fp);
+            remove(tmp);
             return;
         } 
         
@@ -230,10 +240,15 @@ void delete_line_from_file(char* filenmae, char* line_number_s){
 -------------------------------------------------------*/
 int count_string_in_file(char* filename, char* word){
     int count = 0;
-    FILE* fp = fopen(filename, "r");
+    FILE* fp;
     int word_len = strlen(word);
     int c, i = 0;
 
+    if(filename == NULL)
+        return -1;
+    
+
+    fp = fopen(filename, "r");
     if(fp == NULL)
         return -1;
     
