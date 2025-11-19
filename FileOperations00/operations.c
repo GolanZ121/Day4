@@ -21,7 +21,7 @@
 -------------------------------------------------------*/
 void print_file(char *filename){
     FILE *fp = fopen(filename, "r");
-    char c; 
+    int c; 
 
     if(fp == NULL){
         printf("error with file %s", filename);
@@ -47,22 +47,34 @@ void print_file(char *filename){
 * Author - Golan Ziv
 -------------------------------------------------------*/
 void copy_file(char *src_filename, char *dest_filename){
-    FILE *src_fp = fopen(src_filename, "r");
-    FILE *dest_fp = fopen(dest_filename, "w");
-    char c; 
+    FILE *src_fp;
+    FILE *dest_fp;
+    int c; 
+
+    if(src_filename == NULL || dest_filename == NULL) return;
+
+    src_fp = fopen(src_filename, "r");
+    dest_fp = fopen(dest_filename, "w");
 
     if(src_fp == NULL){
         printf("error with file %s", src_filename);
+        if(dest_fp != NULL) fclose(dest_fp);
         return;
     }
 
     if(dest_fp == NULL){
         printf("error with file %s", dest_filename);
+        fclose(src_fp);
         return;
     }
 
-    while((c = fgetc(src_fp)) != EOF)
-        fputc(c, dest_fp); // putting every char to thte destination file
+    while((c = fgetc(src_fp)) != EOF){
+        if(fputc(c, dest_fp) != c){ // putting every char to thte destination file
+            fclose(src_fp);    
+            fclose(dest_fp);
+            return;
+        } 
+    }
     
 
     fclose(src_fp);
@@ -84,7 +96,7 @@ void analyze_file(char *filename){
     FILE *fp = fopen(filename, "r");
     int in_word = 0;
     int newline_counter = 0, char_counter = 0, word_counter = 0;
-    char c; 
+    int c, read_non_whitespace = 0; 
 
     if(fp == NULL){
         printf("error with file %s", filename);
@@ -92,8 +104,14 @@ void analyze_file(char *filename){
     }
 
     while((c = fgetc(fp)) != EOF){
-        if(c == '\n') newline_counter++; 
-        if(!isalpha(c)){ // if the char is not from the ABC, that means we are currently not in a word
+        if(c == (int)'\n'){ 
+            if(read_non_whitespace) newline_counter++;
+
+            read_non_whitespace = 0;
+        }
+        else read_non_whitespace = 1;
+
+        if(!isalpha((unsigned char)c)){ // if the char is not from the ABC, that means we are currently not in a word
             in_word = 0;
         }else { //if it is in the ABC
             char_counter++; // we count it as a letter
@@ -102,10 +120,10 @@ void analyze_file(char *filename){
                 in_word = 1; // we mark that we are in a word
             }
         }
-
     }
+    if(read_non_whitespace) newline_counter++;
 
-    printf("%d\n%d\n%d\n", newline_counter+1, word_counter, char_counter);
+    printf("%d\n%d\n%d\n", newline_counter, word_counter, char_counter);
 
     fclose(fp);
 }
@@ -125,29 +143,42 @@ void analyze_file(char *filename){
 void delete_line_from_file(char* filenmae, char* line_number_s){
     int line_n;
     int line_counter = 1;
-    char c, tmp[] = "temp.txt";
+    int c;
+    char tmp[] = "temp.txt";
     FILE* fp = fopen(filenmae, "r");
     FILE* tempfp = fopen(tmp, "w");
 
     if(fp == NULL){
         printf("error with file %s", filenmae);
+        if(tempfp) fclose(tempfp);
         return;
     }
 
     if(tempfp == NULL){
         printf("error while deleting line");
+        fclose(fp);
         return;
     }
 
-    sscanf(line_number_s, " %d", &line_n);
+    if(sscanf(line_number_s, " %d", &line_n) != 1){
+        fclose(fp);
+        fclose(tempfp);
+        return;
+    }
 
     if (line_n <= 0) return;
 
     // copy all contents of the file to the temp file 
     // except the specific line 
     while((c = fgetc(fp)) != EOF){
-        if (line_counter != line_n) fputc(c, tempfp);
-        if (c == '\n') line_counter++;        
+        if (line_counter != line_n){
+            if(fputc(c, tempfp) != c){ 
+                fclose(tempfp);
+                fclose(fp);
+                return;
+            } 
+        } 
+        if (c == (int) '\n') line_counter++;        
     } 
 
     // close and open in different mode
@@ -158,19 +189,26 @@ void delete_line_from_file(char* filenmae, char* line_number_s){
 
     if(fp == NULL){
         printf("error with file %s", filenmae);
+        if(tempfp) fclose(tempfp);
         return;
     }
 
     if(tempfp == NULL){
         printf("error while deleting line");
+        fclose(fp);
         return;
     }   
 
     // copy back the contents of the temp file to the original file
-    while((c = fgetc(tempfp)) != EOF)
-        fputc(c, fp);
+    while((c = fgetc(tempfp)) != EOF){
+        if(fputc(c, tempfp) != c){ 
+            fclose(tempfp);
+            fclose(fp);
+            return;
+        } 
+        
+    }
     
-
     fclose(fp);
     fclose(tempfp);
 
