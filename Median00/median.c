@@ -35,37 +35,44 @@ int compare(const void * a, const void * b){
 -------------------------------------------------------*/
 int main(){
     int counter = 0, curr, median;
-    int *numbers = (int *)malloc(sizeof(int));
-
-    if(numbers == NULL){
-        printf("Error malloc allocation memory");
-        return 1;
-    }
+    int *numbers = NULL;
+    int *temp;
+    
 
     printf("Enter numbers to find median (enter non number to stop)");    
     while(1){
-        if(scanf(" %d", &curr) == 0) break;
+        if(scanf(" %d", &curr) != 1){
+            if(counter == 0){
+                printf("\nNo numbers entered");
+                return 1;
+            }
+            else break;
+        };
 
         counter++;
-        numbers = (int *)realloc(numbers, sizeof(int)*counter);
-        
-        if(numbers == NULL){
-            printf("Error realloc allocation memory");
-            return 1;
+        if(counter == 1){
+            numbers = (int *) malloc(sizeof(int));
+            if(numbers == NULL){
+                printf("Error malloc allocation memory");
+                return 1;
+            }
         }
-
+        else{ 
+            temp = (int *)realloc(numbers, sizeof(int)*counter);
+            if(temp == NULL){
+                printf("Error realloc allocation memory");
+                free(numbers);
+                return 1;
+            }
+            numbers = temp;
+        }
         numbers[counter-1] = curr;
     }
 
     qsort((void *) numbers, counter, sizeof(int), compare);
-    
-    if(counter == 0){
-        printf("\nNo numbers entered");
-        return 1;
-    }
 
     median = (counter % 2 == 0) ? 
-                (numbers[counter / 2] + numbers[(counter / 2) + 1]) / 2:
+                (numbers[(counter / 2) - 1] + numbers[counter / 2]) / 2:
                 (numbers[counter / 2]);
 
     printf("\nThe median is %d", median);
