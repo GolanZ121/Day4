@@ -22,4 +22,5 @@ typedef struct {
 void print_time(const Time *t);
 int validate_input(int h, int m, int s);
 int create_time(Time *t);
+void init_time(Time *t);
 Time* add_times(const Time *t1, const Time *t2);

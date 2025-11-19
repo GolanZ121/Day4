@@ -6,6 +6,7 @@
 
 #include "time.h"
 
+
 /*------------------------------------------------------
 * Function Name - print_time
 *
@@ -67,6 +68,22 @@ int create_time(Time *t){
     return 0;
 }
 
+/*------------------------------------------------------
+* Function Name - init_time 
+*
+* Function Purpose - init Time struct with 0s
+*
+* Parameters –  [IN t1 - pointer to Time struct] 
+*
+* Return Values - void
+*
+* Author - Golan Ziv
+-------------------------------------------------------*/
+void init_time(Time *t){
+    t->hours = 0;
+    t->minutes = 0;
+    t->seconds = 0;
+}
 
 /*------------------------------------------------------
 * Function Name - add_times 

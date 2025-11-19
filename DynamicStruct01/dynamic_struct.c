@@ -21,6 +21,18 @@ int main(){
     t1 = (Time *) malloc(sizeof(Time));
     t2 = (Time *) malloc(sizeof(Time));
     sum = (Time *) malloc(sizeof(Time));
+    // checking allocations, and initializing structs.
+    if(t1 == NULL || t2 == NULL || sum == NULL){
+        printf("memoery allocation failed for structs!");
+        if(t1 != NULL) free(t1);
+        if(t2 != NULL) free(t2);
+        if(sum != NULL) free(sum);
+        return 1;
+    }
+
+    init_time(t1);
+    init_time(t2);
+    init_time(sum);
 
     if(create_time(t1) || create_time(t2)){
         printf("Bad Input!");
